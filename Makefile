@@ -16,7 +16,7 @@ COMPONENT_LIBS = $(foreach dir, $(COMPONENT_DIRS), $(dir)/$(dir).a)
 
 CFLAGS += $(addprefix -I, $(COMPONENT_DIRS))
 
-.PHONY: default force all tests alltests runtests runalltests deps clean clobber
+.PHONY: default force all tests alltests runtests runalltests clean clobber
 
 default: $(EXE)
 
@@ -48,16 +48,13 @@ runtests: tests
 runalltests: runtests
 	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) runtests ); done
 
-deps:
-	$(CC) -MM $(CFLAGS) main.c $(APP_SRC) $(APP_TEST_SRC) > Makefile.deps
-	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) deps ); done
-
 clean:
-	rm -f main.o $(APP_OBJS) $(APP_TEST_OBJS)
+	rm -f main.o main.d $(APP_OBJS) $(APP_OBJS:.o=.d) $(APP_TEST_OBJS) $(APP_TEST_OBJS:.o=.d)
 	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) clean ); done
 
 clobber:
-	rm -f main.o $(APP_OBJS) $(APP_TEST_OBJS) $(APP_LIB) $(EXE) $(APP_TEST_EXES)
+	rm -f main.o main.d $(APP_OBJS) $(APP_OBJS:.o=.d) $(APP_TEST_OBJS) $(APP_TEST_OBJS:.o=.d)
+	rm -f $(APP_LIB) $(EXE) $(APP_TEST_EXES)
 	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) clobber ); done
 
--include Makefile.deps
+-include $(wildcard *.d)

@@ -9,7 +9,7 @@ TEST_SRC = $(SRC:.c=_test.c)
 TEST_OBJS = $(TEST_SRC:.c=.o)
 TEST_EXES =  $(TEST_SRC:.c=.exe)
 
-.PHONY: default force tests runtests deps clean clobber
+.PHONY: default force tests runtests clean clobber
 
 default: $(LIB)
 
@@ -27,13 +27,10 @@ tests: force
 runtests: tests
 	@for t in $(TEST_EXES); do (./$$t); done
 
-deps:
-	$(CC) -MM $(CFLAGS) $(SRC) $(TEST_SRC) > Makefile.deps
-
 clean:
-	rm -rf $(OBJS) $(TEST_OBJS)
+	rm -rf $(OBJS) $(OBJS:.o=.d) $(TEST_OBJS) $(TEST_OBJS:.o=.d)
 
 clobber:
-	rm -f $(OBJS) $(TEST_OBJS) $(TEST_EXES) $(LIB)
+	rm -f $(OBJS) $(OBJS:.o=.d) $(TEST_OBJS) $(TEST_OBJS:.o=.d) $(TEST_EXES) $(LIB)
 
--include Makefile.deps
+-include $(wildcard *d)

@@ -15,4 +15,4 @@ TEST_LDFLAGS += $(shell $(PKG_CONFIG) --libs check)
 endif
 
 %.o : %.c
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@ -MMD

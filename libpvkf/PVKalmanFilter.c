@@ -40,5 +40,27 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
 
 int PVKalmanFilterUpdate(struct PVKalmanFilterState *state, double t, double z)
 {
+    /*
+     * Prediction:
+     */
+
+    /* x(k|k-1) = Phi(k|k-1) x(k-1) */
+
+    /* P(k|k-1) = Phi(k|k-1) P(k-1|k-1) Phi(k|k-1)' + G(k) Q(k) G(k)' */
+
+    /*
+     * Correction:
+     */
+
+    /* dz = z(k) - H(k) x(k|k-1) */
+
+    /* S(k) = H(k) P(k|k-1) H(k)' + R(k) */
+
+    /* K(k) = P(k|k-1) H(k)' / S(k) */
+
+    /* x(k|k) = x(k|k-1) + K(k) dz */
+
+    /* P(k|k) = [I - K(k) H(k)] P(k|k-1) */
+
     return PVKF_ERROR;
 }
