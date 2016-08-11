@@ -1,0 +1,8 @@
+# Mac OS X noise
+.DS_Store
+
+# Build products
+*.o
+*.a
+*.exe
+
