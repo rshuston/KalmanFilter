@@ -32,7 +32,7 @@ Suite * test_suite(void)
     Suite *s;
     TCase *tc_core;
 
-    s = suite_create("app test suite");
+    s = suite_create("app");
 
     /* Core test case */
     tc_core = tcase_create("Core");
@@ -52,6 +52,7 @@ int main(void)
     Suite *s;
     SRunner *sr;
 
+    putchar('\n');
     puts("-------------------------------------------------------------------------------");
 
     s = test_suite();
@@ -62,6 +63,7 @@ int main(void)
     srunner_free(sr);
 
     puts("-------------------------------------------------------------------------------");
+    putchar('\n');
 
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
