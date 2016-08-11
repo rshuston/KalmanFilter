@@ -37,27 +37,27 @@ app_test.exe: app_test.o $(APP_LIB) $(COMPONENT_LIBS)
 all: $(EXE) alltests
 
 tests: force
-	$(MAKE) $(APP_TEST_EXES)
+	@$(MAKE) $(APP_TEST_EXES)
 
 alltests: tests
-	for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) tests ); done
+	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) tests ); done
 
 runtests: tests
-	for t in $(APP_TEST_EXES); do (./$$t); done
+	@for t in $(APP_TEST_EXES); do (./$$t); done
 
 runalltests: runtests
-	for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) runtests ); done
+	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) runtests ); done
 
 deps:
 	$(CC) -MM $(CFLAGS) main.c $(APP_SRC) $(APP_TEST_SRC) > Makefile.deps
-	for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) deps ); done
+	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) deps ); done
 
 clean:
 	rm -f main.o $(APP_OBJS) $(APP_TEST_OBJS)
-	for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) clean ); done
+	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) clean ); done
 
 clobber:
 	rm -f main.o $(APP_OBJS) $(APP_TEST_OBJS) $(APP_LIB) $(EXE) $(APP_TEST_EXES)
-	for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) clobber ); done
+	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) clobber ); done
 
 -include Makefile.deps

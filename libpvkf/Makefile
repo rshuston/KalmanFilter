@@ -22,10 +22,10 @@ PVKalmanFilter_test.exe: PVKalmanFilter_test.o PVKalmanFilter.o
 	$(LD) $(LDFLAGS) $^ $(TEST_LDFLAGS) -o $@
 
 tests: force
-	$(MAKE) $(TEST_EXES)
+	@$(MAKE) $(TEST_EXES)
 
 runtests: tests
-	for t in $(TEST_EXES); do (./$$t); done
+	@for t in $(TEST_EXES); do (./$$t); done
 
 deps:
 	$(CC) -MM $(CFLAGS) $(SRC) $(TEST_SRC) > Makefile.deps
