@@ -26,17 +26,17 @@ typedef struct PVKalmanFilterState
      * Additional properties
      */
 
-     /* Process model */
-     double Phi[2][2];
-     double G[2];
-     double Q;
+    /* State error covariance */
+    double P[2][2];
 
-     /* Measurement model */
-     double H[2];
-     double R;
+    /* Process model */
+    double Phi[2][2];
+    double G[2];
+    double Q;
 
-     /* State covariance */
-     double P[2][2];
+    /* Measurement model */
+    double H[2];
+    double R;
 
 } PVKalmanFilterState;
 

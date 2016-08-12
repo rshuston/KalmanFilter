@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <check.h>
+#include <math.h>
 
 #include "PVKalmanFilter.h"
+
+#define DOUBLE_TOLERANCE    1e-6
 
 /*
  * TESTABLE functions
  */
 
- extern void foo(void);
-
+int _predict(struct PVKalmanFilterState *state, double t);
+int _correct(struct PVKalmanFilterState *state, double z);
 
 /* ===== PVKalmanFilterInit() =============================================== */
 
@@ -40,6 +43,11 @@ START_TEST (test_PVKalmanFilterInit_initializes_state)
     ck_assert(state.t == t);
     ck_assert(state.x[0] == z);
     ck_assert(state.x[1] == 0.0);
+
+    ck_assert(state.P[0][0] == 1.0);
+    ck_assert(state.P[0][1] == 0.0);
+    ck_assert(state.P[1][0] == 0.0);
+    ck_assert(state.P[1][1] == 0.5);
 
     ck_assert(state.Phi[0][0] == 1.0);
     ck_assert(state.Phi[0][1] == 0.0);
@@ -78,9 +86,31 @@ START_TEST (test_PVKalmanFilterUpdate_updates_state_for_unit_input)
     result = PVKalmanFilterInit(&state, 1, 0, 0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
-    result = PVKalmanFilterUpdate(&state, .5, 1);
+    /* Set state error covariance to steady state value */
+    state.P[0][0] = 0.13185;
+    state.P[0][1] = 0.0093175;
+    state.P[1][0] = 0.0093175;
+    state.P[1][1] = 0.0013651;
 
-    ck_assert_int_eq(result, PVKF_ERROR);
+    result = PVKalmanFilterUpdate(&state, 1, 1);
+    ck_assert_int_eq(result, PVKF_SUCCESS);
+
+    ck_assert(state.t == 1.0);
+    ck_assert(fabs(0.131851 - state.x[0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.009318 - state.x[1]) <= DOUBLE_TOLERANCE);
+
+    ck_assert(fabs(0.131851 - state.P[0][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.009318 - state.P[0][1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.009318 - state.P[1][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.001365 - state.P[1][1]) <= DOUBLE_TOLERANCE);
+
+    ck_assert(state.Phi[0][0] == 1.0);
+    ck_assert(state.Phi[0][1] == 1.0);
+    ck_assert(state.Phi[1][0] == 0.0);
+    ck_assert(state.Phi[1][1] == 1.0);
+
+    ck_assert(state.G[0] == 0.5);
+    ck_assert(state.G[1] == 1.0);
 }
 END_TEST
 

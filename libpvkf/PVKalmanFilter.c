@@ -15,6 +15,18 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
 
     if (state)
     {
+        state->id = id;
+
+        state->t = t;
+
+        state->x[0] = z;  /* can initialized directly since H = [ 1 , 0 ] */
+        state->x[1] = 0.0;
+
+        state->P[0][0] = 1.0;
+        state->P[0][1] = 0.0;
+        state->P[1][0] = 0.0;
+        state->P[1][1] = 0.5;
+
         state->Phi[0][0] = 1;
         state->Phi[0][1] = 0;  /* will be set to dt during update */
         state->Phi[1][0] = 0;
@@ -29,13 +41,6 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
         state->H[1] = 0;
 
         state->R = 1;
-
-        state->t = t;
-
-        state->x[0] = z;  /* can initialized directly since H = [ 1 , 0 ] */
-        state->x[1] = 0.0;
-
-        state->id = id;
 
         returnCode = PVKF_SUCCESS;
     }
