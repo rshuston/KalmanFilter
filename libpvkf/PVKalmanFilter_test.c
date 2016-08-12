@@ -4,6 +4,13 @@
 
 #include "PVKalmanFilter.h"
 
+/*
+ * TESTABLE functions
+ */
+
+ extern void foo(void);
+
+
 /* ===== PVKalmanFilterInit() =============================================== */
 
 START_TEST (test_PVKalmanFilterInit_handles_NULL_state)
@@ -63,6 +70,20 @@ START_TEST (test_PVKalmanFilterUpdate_handles_NULL_state)
 }
 END_TEST
 
+START_TEST (test_PVKalmanFilterUpdate_updates_state_for_unit_input)
+{
+    PVKalmanFilterState state;
+    int result;
+
+    result = PVKalmanFilterInit(&state, 1, 0, 0);
+    ck_assert_int_eq(result, PVKF_SUCCESS);
+
+    result = PVKalmanFilterUpdate(&state, .5, 1);
+
+    ck_assert_int_eq(result, PVKF_ERROR);
+}
+END_TEST
+
 /* ===== Test Suite ========================================================= */
 
 Suite * PVKalmanFilter_test_suite(void)
@@ -79,6 +100,7 @@ Suite * PVKalmanFilter_test_suite(void)
     tcase_add_test(tc_core, test_PVKalmanFilterInit_initializes_state);
 
     tcase_add_test(tc_core, test_PVKalmanFilterUpdate_handles_NULL_state);
+    tcase_add_test(tc_core, test_PVKalmanFilterUpdate_updates_state_for_unit_input);
 
     suite_add_tcase(s, tc_core);
 
