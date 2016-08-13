@@ -38,6 +38,9 @@ typedef struct PVKalmanFilterState
     double H[2];
     double R;
 
+    int (*predict)(struct PVKalmanFilterState *state, double t);
+    int (*correct)(struct PVKalmanFilterState *state, double z);
+
 } PVKalmanFilterState;
 
 
