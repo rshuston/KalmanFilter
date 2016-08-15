@@ -1,0 +1,3 @@
+#!/usr/bin/awk -f
+BEGIN { FS=", " }
+$1 ~ /[0-9.]+/ { printf "%f, %f\n", $1, $3 }

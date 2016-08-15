@@ -14,17 +14,17 @@
 # G = [ 0.5*T*T , T ]'
 # Q = var_a = 0.0001
 #
-# P0 = [1 , 0 ; 0 , 0.5 ]
+# P0 = [ 1 , 0 ; 0 , 0.5 ]
 #
 # z = [ z ]'
 # H = [ 1 , 0 ]
 # R = var_z = 1
 #
 
-N = 2;
+N = 1;
 dt = 1;
 t = dt * [0 : N-1];
-x = (t >= 1);
+x = (t >= 0);
 z = x;
 
 F = [ 1, dt ; 0 , 1 ];
@@ -34,8 +34,9 @@ Q = [ 0.0001 ];
 H = [ 1, 0 ];
 R = [ 1 ];
 
-x0 = [0 ; 0];
-P0 = [0.13185 , 0.0093175 ; 0.0093175 , 0.0013651 ];
+x0 = [ 0 ; 0 ];
+# Steady state values ...
+P0 = [ 0.13185 , 0.0093175 ; 0.0093175 , 0.0013651 ];
 
 [xf, P] = kalman(N, t, F, G, Q, z, H, R, x0, P0);
 
@@ -60,7 +61,7 @@ plot(t, xf_2);
 figure(3);
 plot(t, P_11, t, P_12, t, P_22);
 
-filename = "one_shot.csv";
+filename = "one_shot-steady_state.csv";
 fid = fopen (filename, "w");
 fprintf(fid, "t, x, z, xf, vf, P11, P12, P22\n");
 for k = [1 : N]

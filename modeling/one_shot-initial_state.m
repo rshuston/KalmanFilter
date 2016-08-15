@@ -21,10 +21,10 @@
 # R = var_z = 1
 #
 
-N = 128;
+N = 1;
 dt = 1;
 t = dt * [0 : N-1];
-x = (t == 10);
+x = (t >= 0);
 z = x;
 
 F = [ 1, dt ; 0 , 1 ];
@@ -60,7 +60,7 @@ plot(t, xf_2);
 figure(3);
 plot(t, P_11, t, P_12, t, P_22);
 
-filename = "impulse_input.csv";
+filename = "one_shot-initial_state.csv";
 fid = fopen (filename, "w");
 fprintf(fid, "t, x, z, xf, vf, P11, P12, P22\n");
 for k = [1 : N]
