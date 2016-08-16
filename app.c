@@ -6,6 +6,8 @@
 #include "PVKalmanFilter.h"
 
 
+#define INPUT_LINE_LENGTH   128
+
 
 int app_exec(int argc, char *argv[])
 {
@@ -13,16 +15,42 @@ int app_exec(int argc, char *argv[])
 
     if (argc == 2)
     {
-        if ( strcmp("impulse", argv[1]) == 0 )
+        FILE *fp;
+
+        if ( (fp = fopen(argv[1], "r")) != NULL )
         {
-            returnValue = 0;
-        }
-        else if ( strcmp("step", argv[1]) == 0 )
-        {
-            returnValue = 0;
-        }
-        else if ( strcmp("noisyramp", argv[1]) == 0 )
-        {
+            PVKalmanFilterState kf;
+            double  t;
+            double  z;
+            char line[INPUT_LINE_LENGTH + 1];
+
+            if ( fgets(line, INPUT_LINE_LENGTH, fp) != NULL )
+            {
+                line[INPUT_LINE_LENGTH] = '\0';
+
+                if ( sscanf(line, "%lf, %lf", &t, &z) == 2 )
+                {
+                    if ( PVKalmanFilterInit(&kf, 1, t, z) == PVKF_SUCCESS )
+                    {
+                        printf("%lf, %lf, %lf\n", t, z, kf.x[0]);
+
+                        while ( fgets(line, INPUT_LINE_LENGTH, fp) != NULL )
+                        {
+                            line[INPUT_LINE_LENGTH] = '\0';
+
+                            sscanf(line, "%lf, %lf", &t, &z);
+
+                            if ( PVKalmanFilterUpdate(&kf, t, z) == PVKF_ERROR )
+                            {
+                                break;
+                            }
+                            printf("%lf, %lf, %lf\n", t, z, kf.x[0]);
+                        }
+                    }
+                }
+            }
+
+            fclose(fp);
             returnValue = 0;
         }
     }

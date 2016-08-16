@@ -358,6 +358,64 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterUpdate_updates_state_for_unit_inpu
 }
 END_TEST
 
+/* ===== PVKalmanFilter Behavior ============================================ */
+
+START_TEST (PVKalmanFilter_test_PVKalmanFilter_handles_step_input_update_cycle)
+{
+    PVKalmanFilterState state;
+    int result;
+    int i;
+
+    result = PVKalmanFilterInit(&state, 1, 0.0, 0.0);
+    ck_assert_int_eq(result, PVKF_SUCCESS);
+
+    /* before step jump */
+    result = PVKalmanFilterUpdate(&state, 1.0, 0.0);
+    ck_assert_int_eq(result, PVKF_SUCCESS);
+
+    for (i = 2; i < 10; i++)
+    {
+        PVKalmanFilterUpdate(&state, (double) i, 0);
+    }
+
+    /* at and after step jump */
+    for (i = 10; i <= 20; i++)
+    {
+        PVKalmanFilterUpdate(&state, (double) i, 1.0);
+    }
+
+    ck_assert(state.t == 20.0);
+    ck_assert(fabs(1.233112 - state.x[0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.070204 - state.x[1]) <= DOUBLE_TOLERANCE);
+
+    ck_assert(fabs(0.183695 - state.P[0][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.014845 - state.P[0][1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.014845 - state.P[1][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.002013 - state.P[1][1]) <= DOUBLE_TOLERANCE);
+}
+END_TEST
+
+START_TEST (PVKalmanFilter_test_PVKalmanFilter_covariance_settles_to_steady_state_value)
+{
+    PVKalmanFilterState state;
+    int result;
+    int i;
+
+    result = PVKalmanFilterInit(&state, 1, 0.0, 0.0);
+    ck_assert_int_eq(result, PVKF_SUCCESS);
+
+    for (i = 1; i < 128; i++)
+    {
+        PVKalmanFilterUpdate(&state, (double) i, 0);
+    }
+
+    ck_assert(fabs(0.1318503 - state.P[0][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.0093175 - state.P[0][1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.0093175 - state.P[1][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.0013651 - state.P[1][1]) <= DOUBLE_TOLERANCE);
+}
+END_TEST
+
 /* ===== Test Suite ========================================================= */
 
 Suite * PVKalmanFilter_test_suite(void)
@@ -384,6 +442,9 @@ Suite * PVKalmanFilter_test_suite(void)
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilterUpdate_handles_correct_error_conditions);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilterUpdate_updates_state_for_unit_input_initial_state_mode);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilterUpdate_updates_state_for_unit_input_steady_state_mode);
+
+    tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_handles_step_input_update_cycle);
+    tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_covariance_settles_to_steady_state_value);
 
     suite_add_tcase(s, tc_core);
 

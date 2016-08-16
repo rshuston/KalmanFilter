@@ -92,7 +92,8 @@ STATIC int _predict(struct PVKalmanFilterState *state, double t)
      * x(k|k-1) = Phi(k|k-1) x(k-1)
      */
 
-    state->x[0] =+ state->x[1] * dt;
+    /* The structure of the Phi matrix allows us to simply this calculation */
+    state->x[0] += state->x[1] * dt;
 
     /*
      * P(k|k-1) = Phi(k|k-1) P(k-1|k-1) Phi(k|k-1)' + G(k) Q(k) G(k)'
