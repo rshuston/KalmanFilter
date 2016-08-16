@@ -19,3 +19,5 @@ endif
 
 %_test.exe : %_test.o %.o
 	$(LD) $(LDFLAGS) $^ $(TEST_LDFLAGS) -o $@
+
+.PRECIOUS: %.o

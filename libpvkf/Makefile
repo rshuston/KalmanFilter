@@ -20,8 +20,6 @@ force:
 $(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
-$(TEST_OBJS): force
-
 tests: force
 	@$(MAKE) $(TEST_EXES)
 
