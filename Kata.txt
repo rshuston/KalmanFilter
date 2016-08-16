@@ -63,9 +63,9 @@ The PVKalmanFilter.h header must utilize C++ guards to allow the library to be u
 
 The library code must be architected so that it does not need to perform any block memory management (i.e., no malloc()/free() cycles), and the library cannot throw asserts. You are allowed (encouraged!) to amend the PVKalmanFilterState data fields as necessary with the essential items to maintain a persistent filter state across PVKalmanFilterUpdate() invocations. In addition, you must not use file-scope global variables to maintain filter state; assume that more than one tracking filter may be running.
 
-The library should be implemented efficiently and without wasteful execution overhead.
+The library should be implemented as simply as needed to achieve proper functionality. There are a number of advanced Kalman filtering techniques that can be used for implementations suitable for mission-critical applications, but they are outside the scope of this kata.
 
-The library should be implemented as simply as needed to achieve proper functionality.
+The library should be implemented efficiently and without wasteful execution overhead. Matrix loops should be concise.
 
 The library implementation must be readable and understandable such that it is easy to follow the logic and the mechanics of the Kalman filter equations.
 
