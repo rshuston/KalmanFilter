@@ -1,11 +1,11 @@
 #include "PVKalmanFilter.h"
 
-#include "testable.h"
 
 
-
-STATIC int _predict(struct PVKalmanFilterState *state, double t);
-STATIC int _correct(struct PVKalmanFilterState *state, double z);
+/* These functions are intended to be used internally,
+   but need to be externally accessible for testing */
+int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t);
+int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z);
 
 
 
@@ -42,8 +42,8 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
 
         state->R = 1;
 
-        state->predict = _predict;
-        state->correct = _correct;
+        state->predict = _PVKalmanFilter_predict;
+        state->correct = _PVKalmanFilter_correct;
 
         returnCode = PVKF_SUCCESS;
     }
@@ -73,7 +73,7 @@ int PVKalmanFilterUpdate(struct PVKalmanFilterState *state, double t, double z)
 
 
 
-STATIC int _predict(struct PVKalmanFilterState *state, double t)
+int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
 {
     double  dt;
     double  M2x2[2][2];
@@ -139,7 +139,7 @@ STATIC int _predict(struct PVKalmanFilterState *state, double t)
 
 
 
-STATIC int _correct(struct PVKalmanFilterState *state, double z)
+int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
 {
     double  dz;
     double  M1x2[2];

@@ -8,11 +8,11 @@
 #define DOUBLE_TOLERANCE    1e-5
 
 /*
- * TESTABLE functions
+ * Testable functions
  */
 
-int _predict(struct PVKalmanFilterState *state, double t);
-int _correct(struct PVKalmanFilterState *state, double z);
+int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t);
+int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z);
 
 /*
  * Mock functions
@@ -80,7 +80,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterInit_initializes_state)
 }
 END_TEST
 
-/* ===== _predict() ========================================================= */
+/* ===== _PVKalmanFilter_predict() ========================================== */
 
 START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_initial_state_mode)
 {
@@ -103,7 +103,7 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_initia
     state.P[1][0] = 0.0;
     state.P[1][1] = 0.5;
 
-    result = _predict(&state, 1);
+    result = _PVKalmanFilter_predict(&state, 1);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     ck_assert(state.t == 1.0);
@@ -146,7 +146,7 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_steady
     state.P[1][0] = 0.0093175;
     state.P[1][1] = 0.0013651;
 
-    result = _predict(&state, 1);
+    result = _PVKalmanFilter_predict(&state, 1);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     ck_assert(state.t == 1.0);
@@ -168,7 +168,7 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_steady
 }
 END_TEST
 
-/* ===== _correct() ========================================================= */
+/* ===== _PVKalmanFilter_correct() ========================================== */
 
 START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_initial_state_mode)
 {
@@ -201,7 +201,7 @@ START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_initial_state
     state.P[1][0] = 0.50005;
     state.P[1][1] = 0.50010;
 
-    result = _correct(&state, 1);
+    result = _PVKalmanFilter_correct(&state, 1);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     ck_assert(fabs(0.60000 - state.x[0]) <= DOUBLE_TOLERANCE);
@@ -245,7 +245,7 @@ START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_steady_state_
     state.P[1][0] = 0.0107326;
     state.P[1][1] = 0.0014651;
 
-    result = _correct(&state, 1);
+    result = _PVKalmanFilter_correct(&state, 1);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     ck_assert(fabs(0.1318503 - state.x[0]) <= DOUBLE_TOLERANCE);

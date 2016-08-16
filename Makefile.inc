@@ -17,10 +17,5 @@ endif
 %.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@ -MMD
 
-%.tstbl.o : %.c
-	$(CC) -c $(CFLAGS) -DTESTABLE $< -o $@
-
-%_test.exe : %_test.o %.tstbl.o
+%_test.exe : %_test.o %.o
 	$(LD) $(LDFLAGS) $^ $(TEST_LDFLAGS) -o $@
-
-.PRECIOUS: %.o %.tstbl.o
