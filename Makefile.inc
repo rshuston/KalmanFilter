@@ -14,6 +14,8 @@ CFLAGS += $(shell $(PKG_CONFIG) --cflags check)
 TEST_LDFLAGS += $(shell $(PKG_CONFIG) --libs check)
 endif
 
+VALGRIND = $(shell which valgrind)
+
 %.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@ -MMD
 

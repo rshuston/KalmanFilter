@@ -16,7 +16,7 @@ COMPONENT_LIBS = $(foreach dir, $(COMPONENT_DIRS), $(dir)/$(dir).a)
 
 CFLAGS += $(addprefix -I, $(COMPONENT_DIRS))
 
-.PHONY: default force all tests alltests runtests runalltests clean clobber
+.PHONY: default force all tests alltests runtests runalltests runmemtests runallmemtests clean clobber
 
 default: $(EXE)
 
@@ -47,6 +47,12 @@ runtests: tests
 
 runalltests: runtests
 	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) runtests ); done
+
+runmemtests: tests
+	@for t in $(APP_TEST_EXES); do ($(VALGRIND) ./$$t); done
+
+runallmemtests: runmemtests
+	@for d in $(COMPONENT_DIRS); do (cd $$d; $(MAKE) runmemtests ); done
 
 clean:
 	rm -f main.o main.d $(APP_OBJS) $(APP_OBJS:.o=.d) $(APP_TEST_OBJS) $(APP_TEST_OBJS:.o=.d)
