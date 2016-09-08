@@ -18,16 +18,13 @@ typedef struct PVKalmanFilterState
      * Essential properties
      */
 
-    unsigned id;    /* an id tag to distinguish this track from others */
-    double   t;     /* most recent time of update, seconds */
-    double   x[2];  /* estimated state vector, [ pos, vel ] */
-
-    /*
-     * Useful properties to be observed externally to PVKalmanFilter
-     */
-
-    /* State error covariance */
-    double P[2][2];
+    unsigned id;        /* id tag to distinguish this track from others */
+    double   t;         /* most recent time of update, seconds */
+    double   z;         /* most recent measurement */
+    double   x[2];      /* estimated state vector, [ pos, vel ] */
+    double   P[2][2];   /* estimated state error covariance: */
+                        /* [   var_pos ,  covar_posvel ] */
+                        /* [ covar_posvel , var_vel    ] */
 
     /*
      * Additional properties to be used internally by PVKalmanFilter
@@ -57,10 +54,14 @@ typedef struct PVKalmanFilterState
  * state = filter state to initialize for accepting subsequent updates
  * id = id tag to be assigned to filter state
  * t = time of initial measurement
- * z = initial measurement
+ * z = initial measurement to be used to initialize the state
+ * P = initial state error covariance:
+ *     [   var_pos ,  covar_posvel ]
+ *     [ covar_posvel , var_vel    ]
  */
 
-extern int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z);
+extern int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z, double P[2][2]);
+
 
 /*
  * PVKalmanFilterUpdate()

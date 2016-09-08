@@ -9,7 +9,7 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z);
 
 
 
-int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z)
+int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z, double P[2][2])
 {
     int returnCode = PVKF_ERROR;
 
@@ -18,14 +18,15 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
         state->id = id;
 
         state->t = t;
+        state->z = z;
 
         state->x[0] = z;  /* can initialized directly since H = [ 1 , 0 ] */
         state->x[1] = 0.0;
 
-        state->P[0][0] = 1.0;
-        state->P[0][1] = 0.0;
-        state->P[1][0] = 0.0;
-        state->P[1][1] = 0.5;
+        state->P[0][0] = P[0][0];
+        state->P[0][1] = P[0][1];
+        state->P[1][0] = P[1][0];
+        state->P[1][1] = P[1][1];
 
         state->Phi[0][0] = 1;
         state->Phi[0][1] = 0;  /* will be set to dt during update */
@@ -59,12 +60,19 @@ int PVKalmanFilterUpdate(struct PVKalmanFilterState *state, double t, double z)
 
     if (state)
     {
+        PVKalmanFilterState savedState = *state;
+
         if (state->predict && state->correct)
         {
             if ( state->predict(state, t) == PVKF_SUCCESS )
             {
                 returnCode = state->correct(state, z);
             }
+        }
+
+        if (returnCode == PVKF_ERROR)
+        {
+            *state = savedState;
         }
     }
 
@@ -149,6 +157,8 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
     double  P_k[2][2];
     int     i, j, k;
 
+    state->z = z;
+    
     /*
      * dz = z(k) - H(k) x(k|k-1)
      */

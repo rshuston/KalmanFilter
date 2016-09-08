@@ -30,7 +30,12 @@ int app_exec(int argc, char *argv[])
 
                 if ( sscanf(line, "%lf, %lf", &t, &z) == 2 )
                 {
-                    if ( PVKalmanFilterInit(&kf, 1, t, z) == PVKF_SUCCESS )
+                    double P_0[2][2] = {
+                        { 1.0, 0.0 },
+                        { 0.0, 0.5 }
+                    };
+
+                    if ( PVKalmanFilterInit(&kf, 1, t, z, P_0) == PVKF_SUCCESS )
                     {
                         printf("%lf, %lf, %lf\n", t, z, kf.x[0]);
 
