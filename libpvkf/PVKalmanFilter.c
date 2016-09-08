@@ -28,20 +28,9 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
         state->P[1][0] = P[1][0];
         state->P[1][1] = P[1][1];
 
-        state->Phi[0][0] = 1;
-        state->Phi[0][1] = 0;  /* will be set to dt during update */
-        state->Phi[1][0] = 0;
-        state->Phi[1][1] = 1;
-
-        state->G[0] = 0.5;  /* will be set to 0.5 * dt * dt during update */
-        state->G[1] = 1;    /* will be set to dt during update */
-
         state->Q = 0.0001;
 
-        state->H[0] = 1;
-        state->H[1] = 0;
-
-        state->R = 1;
+        state->R = 1; // Unity variance
 
         state->predict = _PVKalmanFilter_predict;
         state->correct = _PVKalmanFilter_correct;
@@ -84,6 +73,8 @@ int PVKalmanFilterUpdate(struct PVKalmanFilterState *state, double t, double z)
 int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
 {
     double  dt;
+    double  Phi[2][2];
+    double  G[2];
     double  M2x2[2][2];
     double  M2x1[2];
     int     i, j, k;
@@ -91,10 +82,21 @@ int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
     dt = t - state->t;
     state->t = t;
 
-    state->Phi[0][1] = dt;
+    /*
+     * State transition matrix
+     */
 
-    state->G[0] = 0.5 * dt * dt;
-    state->G[1] = dt;
+    Phi[0][0] = 1;
+    Phi[0][1] = dt;
+    Phi[1][0] = 0;
+    Phi[1][1] = 1;
+
+    /*
+     * Process tranformation matrix
+     */
+
+    G[0] = 0.5 * dt * dt;
+    G[1] = dt;
 
     /*
      * x(k|k-1) = Phi(k|k-1) x(k-1)
@@ -115,7 +117,7 @@ int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
             double sum = 0;
             for (k = 0; k < 2; k++)
             {
-                sum += state->Phi[i][k] * state->P[k][j];
+                sum += Phi[i][k] * state->P[k][j];
             }
             M2x2[i][j] = sum;
         }
@@ -128,19 +130,19 @@ int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
             double sum = 0;
             for (k = 0; k < 2; k++)
             {
-                sum += M2x2[i][k] * state->Phi[j][k];
+                sum += M2x2[i][k] * Phi[j][k];
             }
             state->P[i][j] = sum;
         }
     }
     /* M2x1 = G(k) Q(k) */
-    M2x1[0] = state->G[0] * state->Q;
-    M2x1[1] = state->G[1] * state->Q;
+    M2x1[0] = G[0] * state->Q;
+    M2x1[1] = G[1] * state->Q;
     /* P(k|k-1) += M2x1 G(k)' */
-    state->P[0][0] += M2x1[0] * state->G[0];
-    state->P[0][1] += M2x1[0] * state->G[1];
-    state->P[1][0] += M2x1[1] * state->G[0];
-    state->P[1][1] += M2x1[1] * state->G[1];
+    state->P[0][0] += M2x1[0] * G[0];
+    state->P[0][1] += M2x1[0] * G[1];
+    state->P[1][0] += M2x1[1] * G[0];
+    state->P[1][1] += M2x1[1] * G[1];
 
     return PVKF_SUCCESS;
 }
@@ -150,6 +152,7 @@ int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
 int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
 {
     double  dz;
+    double  H[2];
     double  M1x2[2];
     double  S;
     double  K[2];
@@ -158,20 +161,23 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
     int     i, j, k;
 
     state->z = z;
-    
+
+    H[0] = 1;
+    H[1] = 0;
+
     /*
      * dz = z(k) - H(k) x(k|k-1)
      */
 
-    dz = z - state->H[0] * state->x[0] + state->H[1] * state->x[1];
+    dz = z - H[0] * state->x[0] + H[1] * state->x[1];
 
     /*
      * S(k) = H(k) P(k|k-1) H(k)' + R(k)
      */
 
-    M1x2[0] = state->H[0] * state->P[0][0] + state->H[1] * state->P[1][0];
-    M1x2[1] = state->H[0] * state->P[0][1] + state->H[1] * state->P[1][1];
-    S = M1x2[0] * state->H[0] + M1x2[1] * state->H[1] + state->R;
+    M1x2[0] = H[0] * state->P[0][0] + H[1] * state->P[1][0];
+    M1x2[1] = H[0] * state->P[0][1] + H[1] * state->P[1][1];
+    S = M1x2[0] * H[0] + M1x2[1] * H[1] + state->R;
     if (S <= 0)
     {
         return PVKF_ERROR;
@@ -181,8 +187,8 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
      * K(k) = P(k|k-1) H(k)' / S(k)
      */
 
-    K[0] = (state->P[0][0] * state->H[0] + state->P[0][1] * state->H[1]) / S;
-    K[1] = (state->P[1][0] * state->H[0] + state->P[1][1] * state->H[1]) / S;
+    K[0] = (state->P[0][0] * H[0] + state->P[0][1] * H[1]) / S;
+    K[1] = (state->P[1][0] * H[0] + state->P[1][1] * H[1]) / S;
 
     /*
      * x(k|k) = x(k|k-1) + K(k) dz
@@ -195,10 +201,10 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
      * P(k|k) = [I - K(k) H(k)] P(k|k-1)
      */
 
-    M2x2[0][0] = 1.0 - (K[0] * state->H[0]);
-    M2x2[0][1] = - (K[0] * state->H[1]);
-    M2x2[1][0] = - (K[1] * state->H[0]);
-    M2x2[1][1] = 1.0 - (K[1] * state->H[1]);
+    M2x2[0][0] = 1.0 - (K[0] * H[0]);
+    M2x2[0][1] = - (K[0] * H[1]);
+    M2x2[1][0] = - (K[1] * H[0]);
+    M2x2[1][1] = 1.0 - (K[1] * H[1]);
     for (i = 0; i < 2; i++)
     {
         for (j = 0; j < 2; j++)

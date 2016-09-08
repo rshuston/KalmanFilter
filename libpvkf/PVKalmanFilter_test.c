@@ -73,19 +73,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterInit_initializes_state)
     ck_assert(state.P[1][0] == P_0[1][0]);
     ck_assert(state.P[1][1] == P_0[1][1]);
 
-    ck_assert(state.Phi[0][0] == 1.0);
-    ck_assert(state.Phi[0][1] == 0.0);
-    ck_assert(state.Phi[1][0] == 0.0);
-    ck_assert(state.Phi[1][1] == 1.0);
-
-    ck_assert(state.G[0] == 0.5);
-    ck_assert(state.G[1] == 1.0);
-
     ck_assert(state.Q == 0.0001);
-
-    ck_assert(state.H[0] == 1.0);
-    ck_assert(state.H[1] == 0.0);
-
     ck_assert(state.R == 1.0);
 }
 END_TEST
@@ -128,14 +116,6 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_initia
     ck_assert(fabs(0.50005 - state.P[0][1]) <= DOUBLE_TOLERANCE);
     ck_assert(fabs(0.50005 - state.P[1][0]) <= DOUBLE_TOLERANCE);
     ck_assert(fabs(0.50010 - state.P[1][1]) <= DOUBLE_TOLERANCE);
-
-    ck_assert(state.Phi[0][0] == 1.0);
-    ck_assert(state.Phi[0][1] == 1.0);
-    ck_assert(state.Phi[1][0] == 0.0);
-    ck_assert(state.Phi[1][1] == 1.0);
-
-    ck_assert(state.G[0] == 0.5);
-    ck_assert(state.G[1] == 1.0);
 }
 END_TEST
 
@@ -175,14 +155,6 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_steady
     ck_assert(fabs(0.0107326 - state.P[0][1]) <= DOUBLE_TOLERANCE);
     ck_assert(fabs(0.0107326 - state.P[1][0]) <= DOUBLE_TOLERANCE);
     ck_assert(fabs(0.0014651 - state.P[1][1]) <= DOUBLE_TOLERANCE);
-
-    ck_assert(state.Phi[0][0] == 1.0);
-    ck_assert(state.Phi[0][1] == 1.0);
-    ck_assert(state.Phi[1][0] == 0.0);
-    ck_assert(state.Phi[1][1] == 1.0);
-
-    ck_assert(state.G[0] == 0.5);
-    ck_assert(state.G[1] == 1.0);
 }
 END_TEST
 
@@ -203,16 +175,6 @@ START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_initial_state
 
     /* Set time stamp */
     state.t = 1.0;
-
-    /* Set state transition matrix */
-    state.P[0][0] = 1.0;
-    state.P[0][1] = 1.0;
-    state.P[1][0] = 0.0;
-    state.P[1][1] = 1.0;
-
-    /* Set process transition matrix */
-    state.G[0] = 0.5;
-    state.G[1] = 1.0;
 
     /* Set state vector to intermediate state value */
     state.x[0] = 0.0;
@@ -253,16 +215,6 @@ START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_steady_state_
 
     /* Set time stamp */
     state.t = 1.0;
-
-    /* Set state transition matrix */
-    state.P[0][0] = 1.0;
-    state.P[0][1] = 1.0;
-    state.P[1][0] = 0.0;
-    state.P[1][1] = 1.0;
-
-    /* Set process transition matrix */
-    state.G[0] = 0.5;
-    state.G[1] = 1.0;
 
     /* Set state vector to intermediate state value */
     state.x[0] = 0.0;

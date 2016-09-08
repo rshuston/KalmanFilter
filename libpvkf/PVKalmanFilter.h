@@ -30,13 +30,10 @@ typedef struct PVKalmanFilterState
      * Additional properties to be used internally by PVKalmanFilter
      */
 
-    /* Process model (calculations are done directly when feasible) */
-    double Phi[2][2];
-    double G[2];
+    /* Process noise (scalar for our model) */
     double Q;
 
-    /* Measurement model (calculations are done directly when feasible) */
-    double H[2];
+    /* Measurement noise (scalar) */
     double R;
 
     /* Prediction and correction function pointers - offers testability */
