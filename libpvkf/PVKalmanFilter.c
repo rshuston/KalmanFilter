@@ -9,7 +9,7 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z);
 
 
 
-int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z, double P[2][2])
+int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z, double P[2][2], double q, double r)
 {
     int returnCode = PVKF_ERROR;
 
@@ -28,9 +28,8 @@ int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t,
         state->P[1][0] = P[1][0];
         state->P[1][1] = P[1][1];
 
-        state->Q = 0.0001;
-
-        state->R = 1; // Unity variance
+        state->q = q;
+        state->r = r;
 
         state->predict = _PVKalmanFilter_predict;
         state->correct = _PVKalmanFilter_correct;
@@ -136,8 +135,8 @@ int _PVKalmanFilter_predict(struct PVKalmanFilterState *state, double t)
         }
     }
     /* M2x1 = G(k) Q(k) */
-    M2x1[0] = G[0] * state->Q;
-    M2x1[1] = G[1] * state->Q;
+    M2x1[0] = G[0] * state->q;
+    M2x1[1] = G[1] * state->q;
     /* P(k|k-1) += M2x1 G(k)' */
     state->P[0][0] += M2x1[0] * G[0];
     state->P[0][1] += M2x1[0] * G[1];
@@ -177,7 +176,7 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
 
     M1x2[0] = H[0] * state->P[0][0] + H[1] * state->P[1][0];
     M1x2[1] = H[0] * state->P[0][1] + H[1] * state->P[1][1];
-    S = M1x2[0] * H[0] + M1x2[1] * H[1] + state->R;
+    S = M1x2[0] * H[0] + M1x2[1] * H[1] + state->r;
     if (S <= 0)
     {
         return PVKF_ERROR;

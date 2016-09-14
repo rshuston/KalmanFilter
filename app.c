@@ -19,7 +19,8 @@ int app_exec(int argc, char *argv[])
 
         if ( (fp = fopen(argv[1], "r")) != NULL )
         {
-            PVKalmanFilterState kf;
+            PVKalmanFilterState kf_a;
+            PVKalmanFilterState kf_b;
             double  t;
             double  z;
             char line[INPUT_LINE_LENGTH + 1];
@@ -35,9 +36,16 @@ int app_exec(int argc, char *argv[])
                         { 0.0, 0.5 }
                     };
 
-                    if ( PVKalmanFilterInit(&kf, 1, t, z, P_0) == PVKF_SUCCESS )
+                    int success_a;
+                    int success_b;
+
+                    success_a = PVKalmanFilterInit(&kf_a, 1, t, z, P_0, 0.0001, 1.0);
+                    success_b = PVKalmanFilterInit(&kf_b, 1, t, z, P_0, 0.01, 1.0);
+
+                    if (success_a == PVKF_SUCCESS && success_b == PVKF_SUCCESS)
                     {
-                        printf("%lf, %lf, %lf\n", t, z, kf.x[0]);
+                        puts("t, z, kf_a.x, kf_b.x");
+                        printf("%lf, %lf, %lf, %lf\n", t, z, kf_a.x[0], kf_b.x[0]);
 
                         while ( fgets(line, INPUT_LINE_LENGTH, fp) != NULL )
                         {
@@ -45,11 +53,14 @@ int app_exec(int argc, char *argv[])
 
                             sscanf(line, "%lf, %lf", &t, &z);
 
-                            if ( PVKalmanFilterUpdate(&kf, t, z) == PVKF_ERROR )
+                            success_a = PVKalmanFilterUpdate(&kf_a, t, z);
+                            success_b = PVKalmanFilterUpdate(&kf_b, t, z);
+
+                            if (success_a == PVKF_ERROR || success_b == PVKF_ERROR)
                             {
                                 break;
                             }
-                            printf("%lf, %lf, %lf\n", t, z, kf.x[0]);
+                            printf("%lf, %lf, %lf, %lf\n", t, z, kf_a.x[0], kf_b.x[0]);
                         }
                     }
                 }

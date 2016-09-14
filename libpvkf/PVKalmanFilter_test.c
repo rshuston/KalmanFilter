@@ -39,7 +39,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterInit_handles_NULL_state)
     };
     int result;
 
-    result = PVKalmanFilterInit(NULL, 0, 0, 0, P_0);
+    result = PVKalmanFilterInit(NULL, 0, 0, 0, P_0, 0.0, 0.0);
 
     ck_assert_int_eq(result, PVKF_ERROR);
 }
@@ -57,7 +57,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterInit_initializes_state)
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, id, t, z, P_0);
+    result = PVKalmanFilterInit(&state, id, t, z, P_0, 0.0001, 1.0);
 
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
@@ -73,8 +73,8 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterInit_initializes_state)
     ck_assert(state.P[1][0] == P_0[1][0]);
     ck_assert(state.P[1][1] == P_0[1][1]);
 
-    ck_assert(state.Q == 0.0001);
-    ck_assert(state.R == 1.0);
+    ck_assert(state.q == 0.0001);
+    ck_assert(state.r == 1.0);
 }
 END_TEST
 
@@ -89,7 +89,7 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_initia
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     /* Set time stamp to a priori value */
@@ -128,7 +128,7 @@ START_TEST (PVKalmanFilter_test_predict_updates_intermediate_state_values_steady
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     /* Set time stamp to a priori value */
@@ -170,7 +170,7 @@ START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_initial_state
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     /* Set time stamp */
@@ -210,7 +210,7 @@ START_TEST (PVKalmanFilter_test_correct_updates_final_state_values_steady_state_
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     /* Set time stamp */
@@ -261,7 +261,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterUpdate_handles_predict_error_condi
     PVKalmanFilterState apriori_state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     state.predict = _mock_predict;
@@ -287,7 +287,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterUpdate_handles_correct_error_condi
     PVKalmanFilterState apriori_state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     state.correct = _mock_correct;
@@ -312,7 +312,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterUpdate_updates_state_for_unit_inpu
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     /* Set state error covariance to initial state value */
@@ -344,7 +344,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilterUpdate_updates_state_for_unit_inpu
     PVKalmanFilterState state;
     int result;
 
-    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0);
+    result = PVKalmanFilterInit(&state, 1, 0, 0, P_0, 0.0001, 1.0);
     ck_assert_int_eq(result, PVKF_SUCCESS);
 
     /* Set state error covariance to steady state value */
@@ -378,7 +378,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilter_impulse_response_test)
     PVKalmanFilterState state;
     int i;
 
-    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0);
+    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0, 0.0001, 1.0);
 
     /* before impulse */
     PVKalmanFilterUpdate(&state, 1.0, 0.0);
@@ -404,7 +404,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilter_handles_step_input_update_cycle)
     PVKalmanFilterState state;
     int i;
 
-    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0);
+    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0, 0.0001, 1.0);
 
     /* before step jump */
     PVKalmanFilterUpdate(&state, 1.0, 0.0);
@@ -439,7 +439,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilter_handles_irregular_time_steps)
     };
     PVKalmanFilterState state;
 
-    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0);
+    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0, 0.0001, 1.0);
 
     PVKalmanFilterUpdate(&state, 1.029114, 0.000000);
     PVKalmanFilterUpdate(&state, 2.025499, 0.000000);
@@ -477,7 +477,7 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilter_covariance_settles_to_steady_stat
     PVKalmanFilterState state;
     int i;
 
-    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0);
+    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0, 0.0001, 1.0);
 
     for (i = 1; i < 128; i++)
     {
@@ -488,6 +488,42 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilter_covariance_settles_to_steady_stat
     ck_assert(fabs(0.0093175 - state.P[0][1]) <= DOUBLE_TOLERANCE);
     ck_assert(fabs(0.0093175 - state.P[1][0]) <= DOUBLE_TOLERANCE);
     ck_assert(fabs(0.0013651 - state.P[1][1]) <= DOUBLE_TOLERANCE);
+}
+END_TEST
+
+START_TEST (PVKalmanFilter_test_PVKalmanFilter_can_run_simulaneous_filters)
+{
+    double P_0[2][2] = {
+        { 1.0, 0.0 },
+        { 0.0, 0.5 }
+    };
+    PVKalmanFilterState state_1;
+    PVKalmanFilterState state_2;
+
+    ck_assert_int_eq( PVKalmanFilterInit(&state_1, 1, 0.0, 0.0, P_0, 0.0001, 1.0), PVKF_SUCCESS );
+    ck_assert_int_eq( PVKalmanFilterInit(&state_2, 2, 0.0, 0.0, P_0, 0.01, 1.0), PVKF_SUCCESS );
+
+    ck_assert_int_eq(state_1.id, 1);
+    ck_assert_int_eq(state_2.id, 2);
+
+    ck_assert_int_eq( PVKalmanFilterUpdate(&state_1, 1.0, 1.0), PVKF_SUCCESS );
+    ck_assert_int_eq( PVKalmanFilterUpdate(&state_2, 1.0, 1.0), PVKF_SUCCESS );
+
+    ck_assert(fabs(1.0 - state_1.t) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.600004 - state_1.x[0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.200018 - state_1.x[1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.600004 - state_1.P[0][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.200018 - state_1.P[0][1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.200018 - state_1.P[1][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.400081 - state_1.P[1][1]) <= DOUBLE_TOLERANCE);
+
+    ck_assert(fabs(1.0 - state_2.t) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.600400 - state_2.x[0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.201798 - state_2.x[1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.600400 - state_2.P[0][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.201798 - state_2.P[0][1]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.201798 - state_2.P[1][0]) <= DOUBLE_TOLERANCE);
+    ck_assert(fabs(0.408092 - state_2.P[1][1]) <= DOUBLE_TOLERANCE);
 }
 END_TEST
 
@@ -522,6 +558,7 @@ Suite * PVKalmanFilter_test_suite(void)
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_handles_step_input_update_cycle);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_handles_irregular_time_steps);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_covariance_settles_to_steady_state_value);
+    tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_can_run_simulaneous_filters);
 
     suite_add_tcase(s, tc_core);
 

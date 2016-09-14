@@ -25,16 +25,12 @@ typedef struct PVKalmanFilterState
     double   P[2][2];   /* estimated state error covariance: */
                         /* [   var_pos ,  covar_posvel ] */
                         /* [ covar_posvel , var_vel    ] */
+    double   q;         /* process noise variance (scalar) */
+    double   r;         /* measurement noise variance (scalar) */
 
     /*
      * Additional properties to be used internally by PVKalmanFilter
      */
-
-    /* Process noise (scalar for our model) */
-    double Q;
-
-    /* Measurement noise (scalar) */
-    double R;
 
     /* Prediction and correction function pointers - offers testability */
     int (*predict)(struct PVKalmanFilterState *state, double t);
@@ -55,9 +51,11 @@ typedef struct PVKalmanFilterState
  * P = initial state error covariance:
  *     [   var_pos ,  covar_posvel ]
  *     [ covar_posvel , var_vel    ]
+ * q = process noise variance (scalar)
+ * r = measurement noise variance (scalar)
  */
 
-extern int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z, double P[2][2]);
+extern int PVKalmanFilterInit(struct PVKalmanFilterState *state, unsigned id, double t, double z, double P[2][2], double q, double r);
 
 
 /*
