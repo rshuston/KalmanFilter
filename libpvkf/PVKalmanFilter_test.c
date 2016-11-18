@@ -395,6 +395,40 @@ START_TEST (PVKalmanFilter_test_PVKalmanFilter_impulse_response_test)
 }
 END_TEST
 
+START_TEST (PVKalmanFilter_test_PVKalmanFilter_initial_impulse_response_test_q_0p0001)
+{
+    double P_0[2][2] = {
+        { 1.0, 0.0 },
+        { 0.0, 0.5 }
+    };
+    PVKalmanFilterState state;
+
+    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0, 0.0001, 1.0);
+
+    PVKalmanFilterUpdate(&state, 1.0, 1.0);
+
+    ck_assert(state.t == 1.0);
+    ck_assert(fabs(0.600004 - state.x[0]) <= DOUBLE_TOLERANCE);
+}
+END_TEST
+
+START_TEST (PVKalmanFilter_test_PVKalmanFilter_initial_impulse_response_test_q_0p01)
+{
+    double P_0[2][2] = {
+        { 1.0, 0.0 },
+        { 0.0, 0.5 }
+    };
+    PVKalmanFilterState state;
+
+    PVKalmanFilterInit(&state, 1, 0.0, 0.0, P_0, 0.01, 1.0);
+
+    PVKalmanFilterUpdate(&state, 1.0, 1.0);
+
+    ck_assert(state.t == 1.0);
+    ck_assert(fabs(0.600400 - state.x[0]) <= DOUBLE_TOLERANCE);
+}
+END_TEST
+
 START_TEST (PVKalmanFilter_test_PVKalmanFilter_handles_step_input_update_cycle)
 {
     double P_0[2][2] = {
@@ -555,6 +589,8 @@ Suite * PVKalmanFilter_test_suite(void)
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilterUpdate_updates_state_for_unit_input_steady_state_mode);
 
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_impulse_response_test);
+    tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_initial_impulse_response_test_q_0p0001);
+    tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_initial_impulse_response_test_q_0p01);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_handles_step_input_update_cycle);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_handles_irregular_time_steps);
     tcase_add_test(tc_core, PVKalmanFilter_test_PVKalmanFilter_covariance_settles_to_steady_state_value);

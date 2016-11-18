@@ -1,8 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <check.h>
 
 #include "app.h"
+
+#if 1
+#define CAPTURE_STDOUT
+#endif
+
+#if defined(CAPTURE_STDOUT)
+#define PIPED_BUFFER_SIZE   1024
+#endif
 
 /* ===== app_exec() ========================================================= */
 
@@ -33,6 +42,12 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     FILE    *file;
     char    *data;
     int     returnValue;
+#if defined(CAPTURE_STDOUT)
+    char    *expected_stdout;
+    int     stdout_orig;
+    int     pipe_filedes[2];
+    char    captured_stdout[PIPED_BUFFER_SIZE + 1];
+#endif
 
     exename = "app_test.exe";
     filename = "/tmp/kalman_filter_test_input.dat";
@@ -48,11 +63,34 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     fputs(data, file);
     fclose(file);
 
+#if defined(CAPTURE_STDOUT)
+    expected_stdout = "t, z, kf_a.x, kf_b.x\n"
+                      "0.000000, 0.000000, 0.000000, 0.000000\n"
+                      "1.000000, 1.000000, 0.600004, 0.600400\n";
+
+    stdout_orig = dup(fileno(stdout));
+    pipe(pipe_filedes);
+    dup2(pipe_filedes[1], fileno(stdout));
+#endif
+
     returnValue = app_exec(2, argv);  /* 0 = success */
+
+#if defined(CAPTURE_STDOUT)
+    fflush(stdout);
+    write(pipe_filedes[1], 0, 1); /* write ending '\0' */
+    close(pipe_filedes[1]);
+    dup2(stdout_orig, fileno(stdout));
+#endif
 
     remove(filename);
 
     ck_assert_int_eq(returnValue, 0);
+
+#if defined(CAPTURE_STDOUT)
+    read(pipe_filedes[0], captured_stdout, PIPED_BUFFER_SIZE);
+    captured_stdout[PIPED_BUFFER_SIZE] = '\0';
+    ck_assert_str_eq(captured_stdout, expected_stdout);
+#endif
 }
 END_TEST
 
