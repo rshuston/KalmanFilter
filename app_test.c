@@ -10,7 +10,7 @@
 #endif
 
 #if defined(CAPTURE_STDOUT)
-#define PIPED_BUFFER_SIZE   1024
+#define MAX_PIPED_BUFFER_SIZE   1024
 #endif
 
 /* ===== app_exec() ========================================================= */
@@ -44,9 +44,10 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     int     returnValue;
 #if defined(CAPTURE_STDOUT)
     char    *expected_stdout;
+    int     expected_char_count;
     int     stdout_orig;
     int     pipe_filedes[2];
-    char    captured_stdout[PIPED_BUFFER_SIZE + 1];
+    char    captured_stdout[MAX_PIPED_BUFFER_SIZE + 1];
 #endif
 
     exename = "app_test.exe";
@@ -67,6 +68,11 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     expected_stdout = "t, z, kf_a.x, kf_b.x\n"
                       "0.000000, 0.000000, 0.000000, 0.000000\n"
                       "1.000000, 1.000000, 0.600004, 0.600400\n";
+    expected_char_count = strlen(expected_stdout);
+    if (expected_char_count > MAX_PIPED_BUFFER_SIZE)
+    {
+        expected_char_count = MAX_PIPED_BUFFER_SIZE;
+    }
 
     stdout_orig = dup(fileno(stdout));
     pipe(pipe_filedes);
@@ -87,8 +93,8 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     ck_assert_int_eq(returnValue, 0);
 
 #if defined(CAPTURE_STDOUT)
-    read(pipe_filedes[0], captured_stdout, PIPED_BUFFER_SIZE);
-    captured_stdout[PIPED_BUFFER_SIZE] = '\0';
+    read(pipe_filedes[0], captured_stdout, expected_char_count);
+    captured_stdout[expected_char_count] = '\0';
     ck_assert_str_eq(captured_stdout, expected_stdout);
 #endif
 }
