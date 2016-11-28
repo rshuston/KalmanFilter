@@ -10,7 +10,67 @@
 #endif
 
 #if defined(CAPTURE_STDOUT)
+
 #define MAX_PIPED_BUFFER_SIZE   1024
+
+typedef struct stdout_capture_s
+{
+    int     stdout_orig;
+    int     pipe_filedes[2];
+    char    captured_stdout[MAX_PIPED_BUFFER_SIZE + 1];
+} stdout_capture_t;
+
+static int _stdout_capture_enable(stdout_capture_t *output_capture)
+{
+    int success = !0;
+
+    output_capture->stdout_orig = dup(fileno(stdout));
+    if ( pipe(output_capture->pipe_filedes) == 0 )
+    {
+        dup2(output_capture->pipe_filedes[1], fileno(stdout));
+    }
+    else
+    {
+        success = 0;
+    }
+
+    return success;
+}
+
+static int _stdout_capture_disable(stdout_capture_t *output_capture)
+{
+    int success = !0;
+
+    fflush(stdout);
+    close(output_capture->pipe_filedes[1]);
+    dup2(output_capture->stdout_orig, fileno(stdout));
+
+    return success;
+}
+
+static int _stdout_capture_retrieve(stdout_capture_t *output_capture, int size)
+{
+    int success = !0;
+
+    if (size > MAX_PIPED_BUFFER_SIZE)
+    {
+        success = 0;
+    }
+    else
+    {
+        if ( read(output_capture->pipe_filedes[0], output_capture->captured_stdout, size) == 0 )
+        {
+            success = 0;
+        }
+        else
+        {
+            output_capture->captured_stdout[size] = '\0';
+        }
+    }
+
+    return success;
+}
+
 #endif
 
 /* ===== app_exec() ========================================================= */
@@ -43,11 +103,9 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     char    *data;
     int     returnValue;
 #if defined(CAPTURE_STDOUT)
-    char    *expected_stdout;
-    int     expected_char_count;
-    int     stdout_orig;
-    int     pipe_filedes[2];
-    char    captured_stdout[MAX_PIPED_BUFFER_SIZE + 1];
+    stdout_capture_t    output_capture;
+    char                *expected_stdout;
+    int                 expected_stdout_size;
 #endif
 
     exename = "app_test.exe";
@@ -65,27 +123,13 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     fclose(file);
 
 #if defined(CAPTURE_STDOUT)
-    expected_stdout = "t, z, kf_a.x, kf_b.x\n"
-                      "0.000000, 0.000000, 0.000000, 0.000000\n"
-                      "1.000000, 1.000000, 0.600004, 0.600400\n";
-    expected_char_count = strlen(expected_stdout);
-    if (expected_char_count > MAX_PIPED_BUFFER_SIZE)
-    {
-        expected_char_count = MAX_PIPED_BUFFER_SIZE;
-    }
-
-    stdout_orig = dup(fileno(stdout));
-    pipe(pipe_filedes);
-    dup2(pipe_filedes[1], fileno(stdout));
+    ck_assert( _stdout_capture_enable(&output_capture) );
 #endif
 
     returnValue = app_exec(2, argv);  /* 0 = success */
 
 #if defined(CAPTURE_STDOUT)
-    fflush(stdout);
-    write(pipe_filedes[1], 0, 1); /* write ending '\0' */
-    close(pipe_filedes[1]);
-    dup2(stdout_orig, fileno(stdout));
+    ck_assert( _stdout_capture_disable(&output_capture) );
 #endif
 
     remove(filename);
@@ -93,9 +137,18 @@ START_TEST (test_app_exec_accepts_known_filename_argument)
     ck_assert_int_eq(returnValue, 0);
 
 #if defined(CAPTURE_STDOUT)
-    read(pipe_filedes[0], captured_stdout, expected_char_count);
-    captured_stdout[expected_char_count] = '\0';
-    ck_assert_str_eq(captured_stdout, expected_stdout);
+    expected_stdout = "t, z, kf_a.x, kf_b.x\n"
+    "0.000000, 0.000000, 0.000000, 0.000000\n"
+    "1.000000, 1.000000, 0.600004, 0.600400\n";
+    expected_stdout_size = strlen(expected_stdout);
+    if (expected_stdout_size > MAX_PIPED_BUFFER_SIZE)
+    {
+        expected_stdout_size = MAX_PIPED_BUFFER_SIZE;
+    }
+
+    ck_assert( _stdout_capture_retrieve(&output_capture, expected_stdout_size) );
+
+    ck_assert_str_eq(output_capture.captured_stdout, expected_stdout);
 #endif
 }
 END_TEST
