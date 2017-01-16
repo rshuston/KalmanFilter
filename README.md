@@ -77,8 +77,7 @@ int PVKalmanFilterInit(
 /* q = process noise variance (scalar) */
 /* r = measurement noise variance (scalar) */
 ```
-The return code must be PVKF_SUCCESS (0) for success, and PVKF_ERROR (-1) for any errors that may be detected during the initialization (e.g., a NULL state pointer).
-
+The return code must be PVKF_SUCCESS (0) for success, and PVKF_ERROR (-1) for any errors that may be detected during the initialization (e.g., a NULL state pointer).  
 2. A one-step update driver function that has the following signature:
 ```
 int PVKalmanFilterUpdate(
