@@ -50,38 +50,38 @@ typedef struct PVKalmanFilterState
 ```
 The library must provide at least two public functions:
 1. An initialization function that has the following signature:
-```
-int PVKalmanFilterInit(
-        struct PVKalmanFilterState *state,
-        unsigned id,
-        double t,
-        double z,
-        double P[2][2],
-        double q,
-        double r
-    )
-/* state = filter state to initialize for accepting subsequent updates */
-/* id = id tag to be assigned to the filter state */
-/* t = time of initial measurement */
-/* z = initial measurement to be used to initialize the state */
-/* P = initial state error covariance: */
-/*     [   var_pos ,  covar_posvel ] */
-/*     [ covar_posvel , var_vel    ] */
-/* q = process noise variance (scalar) */
-/* r = measurement noise variance (scalar) */
-```
+    ```
+    int PVKalmanFilterInit(
+            struct PVKalmanFilterState *state,
+            unsigned id,
+            double t,
+            double z,
+            double P[2][2],
+            double q,
+            double r
+        )
+    /* state = filter state to initialize for accepting subsequent updates */
+    /* id = id tag to be assigned to the filter state */
+    /* t = time of initial measurement */
+    /* z = initial measurement to be used to initialize the state */
+    /* P = initial state error covariance: */
+    /*     [   var_pos ,  covar_posvel ] */
+    /*     [ covar_posvel , var_vel    ] */
+    /* q = process noise variance (scalar) */
+    /* r = measurement noise variance (scalar) */
+    ```
 The return code must be PVKF_SUCCESS (0) for success, and PVKF_ERROR (-1) for any errors that may be detected during the initialization (e.g., a NULL state pointer).
 1. A one-step update driver function that has the following signature:
-```
-int PVKalmanFilterUpdate(
-        struct PVKalmanFilterState *state,
-        double t,
-        double z
-    )
-/* state = filter state to update with new measurement */
-/* t = time of new measurement */
-/* z = the new measurement */
-```
+    ```
+    int PVKalmanFilterUpdate(
+            struct PVKalmanFilterState *state,
+            double t,
+            double z
+        )
+    /* state = filter state to update with new measurement */
+    /* t = time of new measurement */
+    /* z = the new measurement */
+    ```
 The return code must be PVKF_SUCCESS (0) for success, and PVKF_ERROR (-1) for any errors that may be detected during the update (e.g., a NULL state pointer).  If an error does occur, the filter state values listed above must be preserved to what they were prior to the PVKalmanFilterUpdate() invocation.
 
 You must design your filter so that it has an impulse response of no more than 30% once the filter has achieved a sufficiently steady state (i.e., it rejects at least 70% of a noise spike).  For this kata, you can assume sufficient steady state behavior after 10 filter updates for a suitable choice of process noise variance and unity noise variance.
