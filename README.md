@@ -9,7 +9,6 @@ As part of your role on the team, you are to implement a two-state Kalman filter
 The code must be written in ANSI C.  The library public module must be named PVKalmanFilter.c along with a companion PVKalmanFilter.h header file.
 
 The PVKalmanFilter.h header must utilize multiple include guards, and it should also use C++ guards to allow the library to be used in C++ projects at some point in the future:
-
 ```
 #ifndef _PVKalmanFilter_h_
 #define _PVKalmanFilter_h_
@@ -26,16 +25,12 @@ extern "C" {
 
 #endif
 ```
-
 The PVKalmanFilter.h header must define the two return codes:
-
 ```
 #define PVKF_SUCCESS    0
 #define PVKF_ERROR      (-1)
 ```
-
 The library must use a structure, defined in the PVKalmanFilter.h header, that contains at least the following fields:
-
 ```
 typedef struct PVKalmanFilterState
 {
@@ -53,9 +48,7 @@ typedef struct PVKalmanFilterState
 
 } PVKalmanFilterState;
 ```
-
 The library must provide at least two public functions:
-
 1. An initialization function that has the following signature:
 ```
 int PVKalmanFilterInit(
@@ -77,8 +70,8 @@ int PVKalmanFilterInit(
 /* q = process noise variance (scalar) */
 /* r = measurement noise variance (scalar) */
 ```
-The return code must be PVKF_SUCCESS (0) for success, and PVKF_ERROR (-1) for any errors that may be detected during the initialization (e.g., a NULL state pointer).  
-2. A one-step update driver function that has the following signature:
+The return code must be PVKF_SUCCESS (0) for success, and PVKF_ERROR (-1) for any errors that may be detected during the initialization (e.g., a NULL state pointer).
+1. A one-step update driver function that has the following signature:
 ```
 int PVKalmanFilterUpdate(
         struct PVKalmanFilterState *state,
