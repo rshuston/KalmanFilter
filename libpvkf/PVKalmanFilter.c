@@ -162,13 +162,13 @@ int _PVKalmanFilter_correct(struct PVKalmanFilterState *state, double z)
     state->z = z;
 
     H[0] = 1;
-    H[1] = 0;
+    H[1] = 0; /* Given this is 0, we could simplify our calculations even more if need be */
 
     /*
      * dz = z(k) - H(k) x(k|k-1)
      */
 
-    dz = z - H[0] * state->x[0] + H[1] * state->x[1];
+    dz = z - (H[0] * state->x[0] + H[1] * state->x[1]);
 
     /*
      * S(k) = H(k) P(k|k-1) H(k)' + R(k)
